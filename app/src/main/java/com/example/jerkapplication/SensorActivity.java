@@ -1,6 +1,8 @@
 package com.example.jerkapplication;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -36,6 +38,9 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     private SensorEvent event;
     private TextView sensorText, sensorStartText;
     private Switch csvswitchButton, databaseswitchButton;
+    private SQLiteDataHelper helper;
+    private SQLiteDatabase db;
+    private int one_only = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,9 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         System.out.println(sensor);
 
+        // DB作成
+        helper = new SQLiteDataHelper(getApplicationContext());
+        db = helper.getWritableDatabase();
 
         simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS", Locale.getDefault());
         simpleDateFormatDate = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
@@ -80,16 +88,19 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         if (view != null) {
             switch (view.getId()) {
                 case R.id.start_button:
-                    // クリック処理
-                    hz_val = Integer.parseInt(hzText.getText().toString());
-                    if(hz_val > 0){
-                        //日付取得
-                        calendar = Calendar.getInstance();
-                        nowDate = simpleDateFormat.format(calendar.getTime());
-                        filename = simpleDateFormatDate.format(calendar.getTime());
-                        sensorStartText.setText(String.valueOf(nowDate) + "からスタート！ \n (" + filename + ".csv)");
-                        getdata(hz_val);
-                        System.out.println("Strat!!");
+                    one_only++;
+                    if(one_only == 0){
+                        // クリック処理
+                        hz_val = Integer.parseInt(hzText.getText().toString());
+                        if(hz_val > 0){
+                            //日付取得
+                            calendar = Calendar.getInstance();
+                            nowDate = simpleDateFormat.format(calendar.getTime());
+                            filename = simpleDateFormatDate.format(calendar.getTime());
+                            sensorStartText.setText(String.valueOf(nowDate) + "からスタート！ \n (" + filename + ".csv)");
+                            getdata(hz_val);
+                            System.out.println("Strat!!");
+                        }
                     }
                     break;
 
@@ -163,8 +174,22 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void dataBaseSave() {
+        ContentValues values;
+        values = new ContentValues();
+        if(one_only == 0){
+            one_only++;
+            values.put("data_date", filename);
+            db.insert("jerk_table", null, values);
+        }
+
+        values = new ContentValues();
+        values.put("data_date", filename);
+        values.put("x", event.values[0]);
+        values.put("y", event.values[1]);
+        values.put("z", event.values[2]);
+        db.insert("data_table", null, values);
     }
-    
+
 
     private void stopdata() {
         manager.unregisterListener((SensorEventListener) this);
