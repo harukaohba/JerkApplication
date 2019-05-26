@@ -185,6 +185,7 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
 
         values = new ContentValues();
         values.put("data_date", filename);
+        values.put("time", time);
         values.put("x", event.values[0]);
         values.put("y", event.values[1]);
         values.put("z", event.values[2]);

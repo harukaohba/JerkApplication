@@ -179,7 +179,7 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(
                 "data_table",
-                new String[] { "id", "data_date","x","y","z" },
+                new String[] { "id", "data_date","time","x","y","z" },
                 "data_date == "+ data_date,
                 null,
                 null,
@@ -191,10 +191,10 @@ public class ViewActivity extends AppCompatActivity implements View.OnClickListe
 
 
         //リストデータ作成
-        data.add("id | data_date | x | y | z");
+        data.add("id | time | x | y | z");
         for (int i = 0; i < cursor.getCount(); i++) {
-            System.out.println(cursor.getInt(0)+cursor.getString(1)+cursor.getDouble(2)+cursor.getDouble(3)+cursor.getDouble(4));
-            data.add(cursor.getInt(0) + " | " + cursor.getString(1) + " | " + String.format("%.2f",cursor.getDouble(2)) + " | " + String.format("%.2f",cursor.getDouble(3)) + " | " + String.format("%.2f",cursor.getDouble(4)));
+            System.out.println(cursor.getInt(0)+cursor.getString(2)+cursor.getDouble(3)+cursor.getDouble(4)+cursor.getDouble(5));
+            data.add(cursor.getInt(0) + " | " + cursor.getString(2) + " | " + String.format("%.2f",cursor.getDouble(3)) + " | " + String.format("%.2f",cursor.getDouble(4)) + " | " + String.format("%.2f",cursor.getDouble(5)));
             cursor.moveToNext();
         }
 
