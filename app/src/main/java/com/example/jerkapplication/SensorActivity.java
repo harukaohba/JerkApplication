@@ -178,6 +178,7 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         values = new ContentValues();
         if(one_only == 0){
             one_only++;
+            values.put("hz", hz_val);
             values.put("data_date", filename);
             db.insert("jerk_table", null, values);
         }
