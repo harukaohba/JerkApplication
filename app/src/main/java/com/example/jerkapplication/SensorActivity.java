@@ -5,12 +5,18 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.TextView;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -24,10 +30,12 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     private SensorManager manager;
     private Sensor sensor;
     private Timer timer;
-    private String nowDate;
+    private String nowDate, filename, time;
     private Calendar calendar;
-    private SimpleDateFormat simpleDateFormat;
+    private SimpleDateFormat simpleDateFormat, simpleDateFormatDate;
     private SensorEvent event;
+    private TextView sensorText, sensorStartText;
+    private Switch csvswitchButton, databaseswitchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +47,10 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.stop_button).setOnClickListener(this);
         hzText = (EditText) findViewById(R.id.hz_Text);
         hzText.setText("1");
+        sensorStartText = (TextView) findViewById(R.id.sensorStartText);
+        sensorText = (TextView) findViewById(R.id.sensorText);
+        csvswitchButton = (Switch) findViewById(R.id.csvswitch);
+        databaseswitchButton = (Switch) findViewById(R.id.databaseswitch);
 
         timer = new Timer();
         manager = (SensorManager)getSystemService(Activity.SENSOR_SERVICE);
@@ -46,8 +58,9 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         System.out.println(sensor);
 
-        calendar = Calendar.getInstance();
-        simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SS", Locale.getDefault());
+
+        simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS", Locale.getDefault());
+        simpleDateFormatDate = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
 
         Log.d("debug","onCreate()");
 
@@ -69,7 +82,15 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
                 case R.id.start_button:
                     // クリック処理
                     hz_val = Integer.parseInt(hzText.getText().toString());
-                    if(hz_val > 0)getdata(hz_val);
+                    if(hz_val > 0){
+                        //日付取得
+                        calendar = Calendar.getInstance();
+                        nowDate = simpleDateFormat.format(calendar.getTime());
+                        filename = simpleDateFormatDate.format(calendar.getTime());
+                        sensorStartText.setText(String.valueOf(nowDate) + "からスタート！ \n (" + filename + ".csv)");
+                        getdata(hz_val);
+                        System.out.println("Strat!!");
+                    }
                     break;
 
                 case R.id.stop_button:
@@ -83,24 +104,67 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private void checkDataSave() {
+        if(csvswitchButton.isChecked())csvFile(); //csv出力
+        if(databaseswitchButton.isChecked())dataBaseSave();
+    }
+
 
     private void getdata(final int hzVal) {
-            manager.registerListener((SensorEventListener) this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        manager.registerListener((SensorEventListener) this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
 
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    nowDate = simpleDateFormat.format(calendar.getTime());
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                calendar = Calendar.getInstance();
+                nowDate = simpleDateFormat.format(calendar.getTime());
+                time = nowDate;
 
-                    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                        System.out.println(nowDate + " : " + event.values[0] + " : " + hzVal);
-                    } else {
-                        System.out.println(nowDate+" : null");
-                    }
+                /* if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) { */
+                if((event != null) && (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)){
+                    System.out.println(String.valueOf(nowDate) + "|| x:" + String.valueOf(event.values[0]) + " y:" + String.valueOf(event.values[1]) + " z:" + String.valueOf(event.values[2]));
+                    //data保存について確認
+                    checkDataSave();
+                } else {
+                    //System.out.println(nowDate+" : null");
                 }
-            }, 0, 1000 / hzVal);//1Hz 1000ミリ秒, 8Hz 125ミリ秒
-            System.out.println("Run!!");
+            }
+        }, 0, 1000 / hzVal);//1Hz 1000ミリ秒, 8Hz 125ミリ秒
+        System.out.println("Run!!");
     }
+
+    public void csvFile(){
+        try{
+            FileWriter fw = new FileWriter(getFilesDir() + filename+".csv",true);//true追記、false上書き
+            PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
+
+            pw.print(time);
+            pw.print(",");
+            pw.print(event.values[0]);
+            pw.print(",");
+            pw.print(event.values[1]);
+            pw.print(",");
+            pw.print(event.values[2]);
+            pw.print(",");
+            /*if (location == null){
+                pw.print(location1);
+                pw.print(",");
+                pw.print(location1);
+            }else {
+                pw.print(location1.getLatitude());
+                pw.print(",");
+                pw.print(location1.getLongitude());
+            }*/
+            pw.println();
+            pw.close();
+        }catch (IOException e){
+            e.printStackTrace(); //例外時処理
+        }
+    }
+
+    private void dataBaseSave() {
+    }
+    
 
     private void stopdata() {
         manager.unregisterListener((SensorEventListener) this);
@@ -114,10 +178,12 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         event = sensorEvent;
+        sensorText.setText(String.valueOf(nowDate) + "|| x:" + String.valueOf(event.values[0]) + " y:" + String.valueOf(event.values[1]) + " z:" + String.valueOf(event.values[2]));
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
 }
