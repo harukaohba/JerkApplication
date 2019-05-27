@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //ボタンの定義
         findViewById(R.id.insert_button).setOnClickListener(this);
         findViewById(R.id.view_button).setOnClickListener(this);
+        findViewById(R.id.upload_button).setOnClickListener(this);
 
         Log.d("debug","onCreate()");
     }
@@ -77,6 +78,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // クリック処理
                     Intent intent2= new Intent(getApplication(), ViewActivity.class);
                     startActivity(intent2);
+                    break;
+
+                case R.id.upload_button:
+                    // クリック処理
+                    Intent intent3= new Intent(getApplication(), UploadActivity.class);
+                    startActivity(intent3);
                     break;
 
                 default:

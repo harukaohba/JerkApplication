@@ -8,21 +8,24 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class AsyncHttp extends AsyncTask<String, Integer, Boolean> {
+public class DataAsyncHttp extends AsyncTask<String, Integer, Boolean> {
 
-    String id, hz;
+    String id, jerk_table_id, time, x, y, z;
     HttpURLConnection urlConnection = null; //HTTPコネクション管理用
     Boolean flg = false;
 
-    public AsyncHttp(String hz, String id) {
-        this.hz = hz;
+    public DataAsyncHttp(String id,String jerk_table_id,String time,String x,String y,String z) {
         this.id = id;
+        this.jerk_table_id = jerk_table_id;
+        this.time = time;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
-
     @Override
-    protected Boolean doInBackground(String... params) {
-        String urlinput = "http://mznjerk.mizunolab.info/jerk_tables/add";
+    protected Boolean doInBackground(String... strings) {
+        String urlinput = "http://mznjerk.mizunolab.info/data_tables/add";
 
         URL url = null;
         try {
@@ -30,7 +33,7 @@ public class AsyncHttp extends AsyncTask<String, Integer, Boolean> {
             urlConnection = (HttpURLConnection)url.openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
-            String postDataSample = "id="+this.id+"&hz="+this.hz+"&name="+this.id;
+            String postDataSample = "id="+this.id+"&jerk_table_id="+this.jerk_table_id+"&time="+this.time+"&x="+this.x+"&y="+this.y+"&z="+this.z;
             OutputStream out = urlConnection.getOutputStream();
             out.write(postDataSample.getBytes());
             out.flush();
@@ -45,6 +48,4 @@ public class AsyncHttp extends AsyncTask<String, Integer, Boolean> {
         }
         return flg;
     }
-
-
 }

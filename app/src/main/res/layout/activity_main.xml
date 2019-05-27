@@ -22,12 +22,23 @@
             android:id="@+id/view_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="265dp"
-            android:layout_marginLeft="265dp"
+            android:layout_marginStart="252dp"
+            android:layout_marginLeft="252dp"
             android:layout_marginTop="237dp"
             android:text="view"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <Button
+            android:id="@+id/upload_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="444dp"
+            android:layout_marginLeft="444dp"
+            android:layout_marginTop="237dp"
+            android:text="upload"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
             android:layout_width="wrap_content"
