@@ -11,7 +11,7 @@ public class SQLiteDataHelper extends SQLiteOpenHelper {
     private static final String MAIN_TABLE_NAME = "jerk_table";
     private static final String CREATE_MAIN_TABLE_NAME = "CREATE TABLE " + MAIN_TABLE_NAME + "( id INTEGER PRIMARY KEY, hz int, data_date VARCHAR(255) ) ";
     private static final String DATA_TABLE_NAME = "data_table";
-    private static final String CREATE_DATA_TABLE_NAME = "CREATE TABLE " + DATA_TABLE_NAME + " ( id INTEGER PRIMARY KEY, data_date VARCHAR(255),time datetime, x  DOUBLE, y  DOUBLE, z  DOUBLE ) ";
+    private static final String CREATE_DATA_TABLE_NAME = "CREATE TABLE " + DATA_TABLE_NAME + " ( id INTEGER PRIMARY KEY, data_date VARCHAR(255),time datetime, x  DOUBLE, y  DOUBLE, z  DOUBLE,  lat  DOUBLE, lon  DOUBLE, alt DOUBLE ) ";
 
 
     SQLiteDataHelper(Context context) {

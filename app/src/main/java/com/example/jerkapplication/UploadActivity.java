@@ -128,7 +128,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = db.query(
                 "data_table",
-                new String[] { "id", "data_date","time","x","y","z" },
+                new String[] { "id", "data_date","time","x","y","z","lat","lon","alt" },
                 "data_date == "+ data_date,
                 null,
                 null,
@@ -142,7 +142,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
         for (int i = 0; i < cursor.getCount(); i++) {
             System.out.println(cursor.getInt(0)+cursor.getString(2)+cursor.getDouble(3)+cursor.getDouble(4)+cursor.getDouble(5));
-            DataAsyncHttp post = new DataAsyncHttp(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5));
+            DataAsyncHttp post = new DataAsyncHttp(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5),cursor.getString(6),cursor.getString(7),cursor.getString(8));
             post.execute();
             cursor.moveToNext();
         }

@@ -1,13 +1,19 @@
 package com.example.jerkapplication;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -25,7 +31,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class SensorActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener{
+public class SensorActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener, LocationListener {
 
     private EditText hzText;
     private int hz_val;
@@ -36,11 +42,13 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     private Calendar calendar;
     private SimpleDateFormat simpleDateFormat, simpleDateFormatDate;
     private SensorEvent event;
-    private TextView sensorText, sensorStartText;
+    private TextView sensorText, sensorTextLatlon,sensorStartText;
     private Switch csvswitchButton, databaseswitchButton;
     private SQLiteDataHelper helper;
     private SQLiteDatabase db;
     private int one_only = -1;
+    private Location locationdata;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +62,12 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         hzText.setText("1");
         sensorStartText = (TextView) findViewById(R.id.sensorStartText);
         sensorText = (TextView) findViewById(R.id.sensorText);
+        sensorTextLatlon = (TextView) findViewById(R.id.sensorTextLatlon);
         csvswitchButton = (Switch) findViewById(R.id.csvswitch);
         databaseswitchButton = (Switch) findViewById(R.id.databaseswitch);
 
         timer = new Timer();
-        manager = (SensorManager)getSystemService(Activity.SENSOR_SERVICE);
+        manager = (SensorManager) getSystemService(Activity.SENSOR_SERVICE);
         System.out.println(manager);
         sensor = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         System.out.println(sensor);
@@ -70,6 +79,24 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS", Locale.getDefault());
         simpleDateFormatDate = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
 
+
+        //latlon
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        }else {
+            System.out.println("位置情報取得できない");
+        }
         Log.d("debug","onCreate()");
 
     }
@@ -157,6 +184,14 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
             pw.print(",");
             pw.print(event.values[2]);
             pw.print(",");
+            pw.print(locationdata.getLatitude());
+            pw.print(",");
+            pw.print(locationdata.getLongitude());
+            pw.print(",");
+            pw.print(locationdata.getAltitude());
+            pw.print(",");
+
+
             /*if (location == null){
                 pw.print(location1);
                 pw.print(",");
@@ -189,6 +224,9 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         values.put("x", event.values[0]);
         values.put("y", event.values[1]);
         values.put("z", event.values[2]);
+        values.put("lat", locationdata.getLatitude());
+        values.put("lon", locationdata.getLongitude());
+        values.put("alt", locationdata.getAltitude());
         db.insert("data_table", null, values);
     }
 
@@ -213,4 +251,29 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
+
+    //緯度経度変化した時
+    @Override
+    public void onLocationChanged(Location location) {
+        locationdata = location;
+        System.out.println("location : "+location.getLatitude()+", "+location.getLongitude()+", "+location.getAltitude());
+        sensorTextLatlon.setText("lat:"+ String.valueOf(locationdata.getLatitude()) + "lon:" + String.valueOf(locationdata.getLongitude()) + "alt:" + String.valueOf(locationdata.getAltitude()));
+        //count = count+1;
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
 }
