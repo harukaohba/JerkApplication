@@ -47,8 +47,9 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     private SQLiteDataHelper helper;
     private SQLiteDatabase db;
     private int one_only = -1;
-    private Location locationdata;
+    private Location locationdata, blocationdata;
     private LocationManager locationManager;
+    private double lat, lon, alt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +144,16 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void checkDataSave() {
+        if(locationdata != null || locationdata != blocationdata){
+            lat = locationdata.getLatitude();
+            lon = locationdata.getLongitude();
+            alt = locationdata.getAltitude();
+        }else{
+            lat = -1;
+            lon = -1;
+            alt = -1;
+        }
+        blocationdata = locationdata;
         if(csvswitchButton.isChecked())csvFile(); //csv出力
         if(databaseswitchButton.isChecked())dataBaseSave();
     }
@@ -184,11 +195,11 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
             pw.print(",");
             pw.print(event.values[2]);
             pw.print(",");
-            pw.print(locationdata.getLatitude());
+            pw.print(lat);
             pw.print(",");
-            pw.print(locationdata.getLongitude());
+            pw.print(lon);
             pw.print(",");
-            pw.print(locationdata.getAltitude());
+            pw.print(alt);
             pw.print(",");
 
 
@@ -224,9 +235,9 @@ public class SensorActivity extends AppCompatActivity implements View.OnClickLis
         values.put("x", event.values[0]);
         values.put("y", event.values[1]);
         values.put("z", event.values[2]);
-        values.put("lat", locationdata.getLatitude());
-        values.put("lon", locationdata.getLongitude());
-        values.put("alt", locationdata.getAltitude());
+        values.put("lat", lat);
+        values.put("lon", lon);
+        values.put("alt", alt);
         db.insert("data_table", null, values);
     }
 

@@ -22,7 +22,7 @@ public class AsyncHttp extends AsyncTask<String, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
-        String urlinput = "http://mznjerk.mizunolab.info/jerk_tables/add";
+        String urlinput = "http://mznjerk.mizunolab.info/sensors/add";
 
         URL url = null;
         try {

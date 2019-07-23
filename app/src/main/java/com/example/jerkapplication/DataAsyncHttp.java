@@ -28,7 +28,7 @@ public class DataAsyncHttp extends AsyncTask<String, Integer, Boolean> {
 
     @Override
     protected Boolean doInBackground(String... strings) {
-        String urlinput = "http://mznjerk.mizunolab.info/data_tables/add";
+        String urlinput = "http://mznjerk.mizunolab.info/sensor_logs/add";
 
         URL url = null;
         try {
@@ -36,7 +36,7 @@ public class DataAsyncHttp extends AsyncTask<String, Integer, Boolean> {
             urlConnection = (HttpURLConnection)url.openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
-            String postDataSample = "id="+this.id+"&jerk_table_id="+this.jerk_table_id+"&time="+this.time+"&x="+this.x+"&y="+this.y+"&z="+this.z+"&lat="+this.lat+"&lon="+this.lon+"&alt="+this.alt;
+            String postDataSample = "jerk_table_id="+this.jerk_table_id+"&time="+this.time+"&x="+this.x+"&y="+this.y+"&z="+this.z+"&lat="+this.lat+"&lon="+this.lon+"&alt="+this.alt;
             OutputStream out = urlConnection.getOutputStream();
             out.write(postDataSample.getBytes());
             out.flush();
